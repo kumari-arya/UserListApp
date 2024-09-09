@@ -1,117 +1,127 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const App = () => {
+  const [users, setUsers] = useState([]);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [isFormVisible, setIsFormVisible] = useState(false);
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  // Function to add user to the list
+  const addUser = () => {
+    if (name !== '' && phone !== '') {
+      setUsers([...users, { name, phone }]);
+      setName('');
+      setPhone('');
+      setIsFormVisible(false);  // Hide form after submission
+    }
+  };
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  // Function to delete a user from the list
+  const deleteUser = (index) => {
+    const updatedUsers = users.filter((user, i) => i !== index);
+    setUsers(updatedUsers);
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+    <View style={styles.container}>
+      <FlatList
+        data={users}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item, index }) => (
+          <View style={styles.userRow}>
+            <Text style={styles.userText}>{item.name} - {item.phone}</Text>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => deleteUser(index)}
+            >
+              <Text style={styles.deleteText}>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+
+      {isFormVisible && (
+        <View style={styles.formContainer}>
+          <TextInput
+            placeholder="Enter Name"
+            value={name}
+            onChangeText={setName}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Enter Phone Number"
+            value={phone}
+            onChangeText={setPhone}
+            style={styles.input}
+            keyboardType="phone-pad"
+          />
+          <Button title="Submit" onPress={addUser} />
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      )}
+
+      <TouchableOpacity
+        style={styles.plusButton}
+        onPress={() => setIsFormVisible(!isFormVisible)}
+      >
+        <Text style={styles.plusText}>+</Text>
+      </TouchableOpacity>
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#f2f2f2',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  userRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: '#e0e0e0',
+    marginVertical: 5,
+    borderRadius: 5,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  userText: {
+    fontSize: 16,
   },
-  highlight: {
-    fontWeight: '700',
+  deleteButton: {
+    backgroundColor: '#ff4d4d',
+    padding: 5,
+    borderRadius: 5,
+  },
+  deleteText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  formContainer: {
+    marginVertical: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 5,
+    backgroundColor: '#fff',
+  },
+  plusButton: {
+    backgroundColor: '#007bff',
+    padding: 15,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 30,
+    right: 30,
+  },
+  plusText: {
+    color: '#fff',
+    fontSize: 30,
+    fontWeight: 'bold',
   },
 });
 
